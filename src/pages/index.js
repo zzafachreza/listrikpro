@@ -46,6 +46,8 @@ import JualEdit from './Jual/JualEdit';
 import BarangCart from './Barang/BarangCart';
 import Checkout from './Checkout';
 import ProdukDetail from './ProdukDetail';
+import ChoosePage from './ChoosePage';
+import HomePetugas from './HomePetugas';
 
 // NEW
 
@@ -98,6 +100,9 @@ export {
   Royalti,
 Checkout,
 ProdukDetail,
+ChoosePage,
+HomePetugas,
+
 
 
 

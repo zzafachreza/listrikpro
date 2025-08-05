@@ -101,11 +101,14 @@ import {
   BarangCart,
   Checkout,
   ProdukDetail,
+  ChoosePage,
+  HomePetugas,
 } from '../pages';
 import {colors} from '../utils';
 import {Icon} from 'react-native-elements';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {BottomNavigator} from '../components';
+import DetailTransaksi from '../pages/DetailTransaksi';
 
 const Tab = createBottomTabNavigator();
 
@@ -124,7 +127,7 @@ const MainApp = () => {
 
 export default function Router() {
   return (
-    <Stack.Navigator initialRouteName="MainApp">
+    <Stack.Navigator initialRouteName="">
       <Stack.Screen
         name="Splash"
         component={Splash}
@@ -133,9 +136,34 @@ export default function Router() {
         }}
       />
 
+      
+      <Stack.Screen
+        name="ChoosePage"
+        component={ChoosePage}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+       <Stack.Screen
+        name="HomePetugas"
+        component={HomePetugas}
+        options={{
+          headerShown: false,
+        }}
+      />
+
       <Stack.Screen
         name="Pelanggan"
         component={Pelanggan}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="DetailTransaksi"
+        component={DetailTransaksi}
         options={{
           headerShown: false,
         }}

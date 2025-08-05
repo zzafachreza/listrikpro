@@ -8,9 +8,10 @@ import {MyButton, MyGap, MyInput} from '../../components';
 import {useState} from 'react';
 import SoundPlayer from 'react-native-sound-player';
 import axios from 'axios';
-import {apiURL, storeData} from '../../utils/localStorage';
+import {apiURL, storeData, getData} from '../../utils/localStorage';
 import MyLoading from '../../components/MyLoading';
 import {TouchableOpacity} from 'react-native';
+
 export default function Register({navigation, route}) {
   const [kirim, setKirim] = useState({
     nama_lengkap: '',
@@ -25,8 +26,46 @@ export default function Register({navigation, route}) {
       [x]: v,
     });
   };
+  
   const [loading, setLoading] = useState(false);
-  const sendData = () => {
+
+  // Fungsi untuk registrasi lokal
+  const registerLocal = async () => {
+    try {
+      // Ambil data users yang sudah ada
+      const existingUsers = await getData('local_users') || [];
+      
+      // Cek apakah username sudah ada
+      const userExists = existingUsers.find(user => user.username === kirim.username);
+      if (userExists) {
+        toast.show('Username sudah digunakan!', {type: 'danger'});
+        return false;
+      }
+
+      // Buat user baru dengan ID unik
+      const newUser = {
+        id: Date.now().toString(), // Simple ID generator
+        nama_lengkap: kirim.nama_lengkap,
+        username: kirim.username,
+        password: kirim.password, // Dalam implementasi nyata, password harus di-hash
+        userType: 'customer', // Default customer untuk register
+        created_at: new Date().toISOString(),
+      };
+
+      // Tambahkan user baru ke array
+      const updatedUsers = [...existingUsers, newUser];
+      
+      // Simpan ke storage lokal
+      await storeData('local_users', updatedUsers);
+      
+      return true;
+    } catch (error) {
+      console.error('Error saving to local storage:', error);
+      return false;
+    }
+  };
+
+  const sendData = async () => {
     if (kirim.username.length == 0) {
       toast.show('Username masih kosong !');
     } else if (kirim.nama_lengkap.length == 0) {
@@ -36,15 +75,36 @@ export default function Register({navigation, route}) {
     } else {
       console.log(kirim);
       setLoading(true);
-      axios.post(apiURL + 'register', kirim).then(res => {
+      
+      try {
+        // Coba registrasi ke server dulu
+        const response = await axios.post(apiURL + 'register', kirim);
+        
         setTimeout(() => {
           setLoading(false);
-          toast.show(res.data.message, {type: 'success'});
-          navigation.navigate('Login');
+          toast.show(response.data.message, {type: 'success'});
+          navigation.navigate('Login', { userType: 'customer' });
         }, 700);
-      });
+        
+      } catch (error) {
+        console.log('Server registration failed, trying local storage:', error);
+        
+        // Jika gagal ke server, coba simpan lokal
+        const localSuccess = await registerLocal();
+        
+        setTimeout(() => {
+          setLoading(false);
+          if (localSuccess) {
+            toast.show('Registrasi berhasil (disimpan lokal)', {type: 'success'});
+            navigation.navigate('Login', { userType: 'customer' });
+          } else {
+            toast.show('Registrasi gagal, silakan coba lagi', {type: 'danger'});
+          }
+        }, 700);
+      }
     }
   };
+
   return (
     <View
       style={{flex: 1, backgroundColor: colors.white, flexDirection: 'column'}}>
@@ -69,7 +129,6 @@ export default function Register({navigation, route}) {
             justifyContent: 'flex-start',
             backgroundColor: colors.white,
             paddingHorizontal: 20,
-            
           }}>
           <Text
             style={{
@@ -108,7 +167,7 @@ export default function Register({navigation, route}) {
           {!loading && <MyButton onPress={sendData} title="DAFTAR" />}
           {loading && <MyLoading />}
           <TouchableOpacity
-            onPress={() => navigation.navigate('Login')}
+            onPress={() => navigation.navigate('Login', { userType: 'customer' })}
             style={{
               marginTop: 10,
               justifyContent: 'center',

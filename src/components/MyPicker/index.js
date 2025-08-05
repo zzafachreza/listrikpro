@@ -16,31 +16,53 @@ import MyInput from '../MyInput';
 export default function MyPicker({
   label,
   iconname,
-  onChangeText,
+  onChangeText, // Tetap support onChangeText untuk backward compatibility
+  onValueChange, // Tambahkan support untuk onValueChange
   value = '', // Pastikan value punya default value
   data = [],
 }) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(data[0]); // Default selected item
+  const [selectedItem, setSelectedItem] = useState(() => {
+    // Cari item yang sesuai dengan value yang diberikan
+    const foundItem = data.find(item => item.value === value);
+    return foundItem || data[0] || null;
+  });
   const [dataList, setDataList] = useState(data);
 
   console.log(dataList);
 
   useEffect(() => {
     setDataList(data);
-  }, []);
+  }, [data]);
+
+  // Update selectedItem ketika value prop berubah
+  useEffect(() => {
+    const foundItem = data.find(item => item.value === value);
+    if (foundItem) {
+      setSelectedItem(foundItem);
+    }
+  }, [value, data]);
 
   const renderItem = ({item}) => (
     <TouchableOpacity
       style={styles.itemContainer}
       onPress={() => {
         setSelectedItem(item); // Simpan item yang dipilih
-        onChangeText(item.value); // Update value sesuai yang dipilih
+        
+        // Support kedua callback function
+        if (onChangeText) {
+          onChangeText(item.value); // Update value sesuai yang dipilih
+        }
+        if (onValueChange) {
+          onValueChange(item.value); // Update value sesuai yang dipilih
+        }
+        
         setModalVisible(false);
       }}>
       <Text style={styles.itemText}>{item.label}</Text>
     </TouchableOpacity>
   );
+  
   const [ket, setKey] = useState({});
 
   const filterPicker = x => {
