@@ -1,170 +1,58 @@
-import {StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions} from 'react-native';
-import React, {useState} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors, fonts} from '../../utils';
 import FastImage from 'react-native-fast-image';
 import LinearGradient from 'react-native-linear-gradient';
+import {useIsFocused} from '@react-navigation/native';
+import axios from 'axios';
+import {apiURL, getData, webURL} from '../../utils/localStorage';
 
 const {width} = Dimensions.get('window');
 
 export default function Home({navigation}) {
-  const [user] = useState({});
-  const [featuredProducts] = useState([
-    {
-      id: 1,
-      name: 'Nidi & Slo Industri Daya 450 VA - 10600 VA',
-      price: 75000,
-      priceTitle: 'Rp 75.000 ',
-      description: `Selamat datang di toko kami!
+  const [user, setUser] = useState({});
+  const [featuredProducts, setProduct] = useState([]);
 
-Kami melayani jasa penerbitan Sertifikat Laik Operasi (SLO) dan Nomor Identitas Instalasi (NIDI) resmi dan terpercaya.
-
-✔ Proses cepat & sesuai regulasi
-
-✔ Dokumen resmi diakui oleh PLN
-
-✔ Cocok untuk perumahan, usaha, dan proyek
-
-
- Konsultasi gratis
-
- Pelayanan ramah & profesional
-
-Hubungi kami jika ada pertanyaan, kami siap bantu dari awal hingga sertifikat terbit.
-
-
- Catatan Penting:
-
-Pada saat pendaftaran, wajib mengisi data dengan benar dan valid sesuai dengan lokasi tempat pemasangan instalasi listrik.
-
-Data yang tidak sesuai dapat menghambat proses penerbitan sertifikat.
-
-
-Pastikan informasi seperti:
-
-• Nama pemilik
-
-• Alamat lengkap
-
-• Nomor meter/ID pelanggan (jika ada)
-
-• Jenis bangunan/usaha
-
-sudah tepat dan akurat.
-
-
-Setelah Order silahkan Chat kepada kami untuk data pelanggan:
-
-Nama:
-
-Nomor pengenal :
-
-Alamat:
-
-Desa:
-
-Kecamatan:
-
-Kabupaten:
-
-Daya: V/A
-
-
-Sebelum checkout chat admin terlebih dahulu ya untuk memastikan wilayah penerbitan sertifikasi`,
-      image: require('../../assets/product_placeholder.png'),
-      details: [
-        'Bahan: 100% Cotton Premium',
-        'Tersedia ukuran S, M, L, XL',
-        'Warna: Navy, Black, Grey',
-        'Perawatan: Cuci dengan air dingin'
-      ]
-    },
-    {
-      id: 2,
-      name: 'Nidi Slo Home Charging Daya 450 VA - 10600 VA',
-      price: 75000,
-      priceTitle: 'Rp 75.000 ',
-      description: `Selamat datang di toko kami!
-
-Kami melayani jasa penerbitan Sertifikat Laik Operasi (SLO) dan Nomor Identitas Instalasi (NIDI) resmi dan terpercaya.
-
-✔ Proses cepat & sesuai regulasi
-
-✔ Dokumen resmi diakui oleh PLN
-
-✔ Cocok untuk perumahan, usaha, dan proyek
-
-
- Konsultasi gratis
-
- Pelayanan ramah & profesional
-
-Hubungi kami jika ada pertanyaan, kami siap bantu dari awal hingga sertifikat terbit.
-
-
- Catatan Penting:
-
-Pada saat pendaftaran, wajib mengisi data dengan benar dan valid sesuai dengan lokasi tempat pemasangan instalasi listrik.
-
-Data yang tidak sesuai dapat menghambat proses penerbitan sertifikat.
-
-
-Pastikan informasi seperti:
-
-• Nama pemilik
-
-• Alamat lengkap
-
-• Nomor meter/ID pelanggan (jika ada)
-
-• Jenis bangunan/usaha
-
-sudah tepat dan akurat.
-
-
-Setelah Order silahkan Chat kepada kami untuk data pelanggan:
-
-Nama:
-
-Nomor pengenal :
-
-Alamat:
-
-Desa:
-
-Kecamatan:
-
-Kabupaten:
-
-Daya: V/A
-
-
-Sebelum checkout chat admin terlebih dahulu ya untuk memastikan wilayah penerbitan sertifikasi`,
-      image: require('../../assets/product_placeholder2.png'),
-      details: [
-        'Bahan: Katun Pique 200gsm',
-        'Tersedia ukuran S, M, L, XL',
-        'Warna: White, Blue, Maroon',
-        'Desain kerah rib dengan 3 kancing'
-      ]
-    },
-  ]);
-
-  const navigateToDetail = (product) => {
-    navigation.navigate('ProdukDetail', { product });
+  const navigateToDetail = product => {
+    navigation.navigate('ProdukDetail', {product});
+  };
+  const getTransaksi = () => {
+    axios
+      .post(apiURL + 'listdata', {
+        modul: 'jasa',
+      })
+      .then(res => {
+        console.log(res.data);
+        setProduct(res.data);
+      });
   };
 
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    getData('user').then(u => setUser(u));
+    if (isFocused) {
+      getTransaksi();
+    }
+  }, [isFocused]);
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={['#F8AB05', '#006DAB']}
+        colors={[colors.primary, '#FEFAE0']}
         style={styles.headerGradient}
         start={{x: 0, y: 0}}
-        end={{x: 1, y: 0}}>
+        end={{x: 0.9, y: 1}}>
         <View style={styles.header}>
           <View>
-            <Text style={styles.greetingText}>Selamat datang,</Text>
-            <Text style={styles.greetingText}>{user.nama_lengkap || 'User'}</Text>
+            <Text style={styles.greetingText}>SELAMAT DATANG,</Text>
+            <Text style={styles.greetingText}>{user.nama_customer}</Text>
           </View>
           <FastImage
             source={require('../../assets/logo.png')}
@@ -174,29 +62,29 @@ Sebelum checkout chat admin terlebih dahulu ya untuk memastikan wilayah penerbit
         </View>
       </LinearGradient>
 
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}>
-        {/* Product Cards */}
-        <View style={styles.productsContainer}>
-          {featuredProducts.map((product, index) => (
-            <TouchableOpacity 
-              key={product.id} 
-              style={[
-                styles.productCard,
-                index === 0 && {marginTop: -50} // First card overlaps the header
-              ]}
+        <View style={styles.productsGrid}>
+          {featuredProducts.map(product => (
+            <TouchableOpacity
+              key={product.id_jasa}
+              style={styles.productCard}
               onPress={() => navigateToDetail(product)}>
-              
-              <FastImage
-                source={product.image}
-                style={styles.productImage}
-                resizeMode="contain"
-              />
-              
-              <View style={styles.productInfo}>
-                <Text style={styles.productName}>{product.name}</Text>
-                <Text style={styles.productPrice}>{product.priceTitle}</Text>
+              <View style={styles.cardContent}>
+                <FastImage
+                  source={{
+                    uri: webURL + product.foto_jasa,
+                  }}
+                  style={styles.productImage}
+                  resizeMode="contain"
+                />
+                <View style={styles.productInfo}>
+                  <Text style={styles.productName}>{product.nama_jasa}</Text>
+                  <Text style={styles.productPrice}>
+                    {new Intl.NumberFormat().format(product.harga)}
+                  </Text>
+                </View>
               </View>
             </TouchableOpacity>
           ))}
@@ -223,7 +111,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
     paddingBottom: 20,
-    top: 10
+    top: 10,
   },
   logo: {
     width: 50,
@@ -232,50 +120,61 @@ const styles = StyleSheet.create({
   },
   greetingText: {
     fontFamily: fonts.secondary[600],
-    fontSize: 20,
+    fontSize: 15,
     color: 'white',
   },
   scrollContainer: {
     paddingBottom: 30,
   },
-  productsContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    marginTop: 80
+  productsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    marginTop: 30, // ganti dari 80 ke 30
   },
   productCard: {
+    width: '48%',
+    aspectRatio: 1,
     backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 15,
-    marginBottom: 25,
+    borderRadius: 15,
+    marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    shadowRadius: 4,
+    elevation: 3,
+    overflow: 'hidden',
+  },
+  cardContent: {
+    flex: 1,
+    padding: 10,
+    justifyContent: 'space-between',
   },
   productImage: {
     width: '100%',
-    height: 200,
-    marginBottom: 10,
+    height: '60%',
+    resizeMode: 'contain',
   },
   productInfo: {
     backgroundColor: colors.primary,
     borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    alignSelf: 'stretch',
+    padding: 8,
+    minHeight: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   productName: {
     fontFamily: fonts.secondary[700],
-    fontSize: 16,
+    fontSize: 10,
     color: 'white',
     textAlign: 'center',
-    marginBottom: 5,
+    marginBottom: 4,
+    flexShrink: 1,
   },
   productPrice: {
     fontFamily: fonts.secondary[600],
-    fontSize: 14,
+    fontSize: 11,
     color: 'white',
     textAlign: 'center',
   },

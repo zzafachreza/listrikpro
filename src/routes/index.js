@@ -103,12 +103,14 @@ import {
   ProdukDetail,
   ChoosePage,
   HomePetugas,
+  RiwayatTransaksi,
+  DetailTransaksi,
+  DetailTransaksiPetugas,
 } from '../pages';
 import {colors} from '../utils';
 import {Icon} from 'react-native-elements';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {BottomNavigator} from '../components';
-import DetailTransaksi from '../pages/DetailTransaksi';
 
 const Tab = createBottomTabNavigator();
 
@@ -120,6 +122,7 @@ const MainApp = () => {
       initialRouteName="Splash"
       tabBar={props => <BottomNavigator {...props} />}>
       <Tab.Screen name="Home" component={Home} />
+      <Tab.Screen name="RiwayatTransaksi" component={RiwayatTransaksi} />
       <Tab.Screen name="Profile" component={Account} />
     </Tab.Navigator>
   );
@@ -136,7 +139,6 @@ export default function Router() {
         }}
       />
 
-      
       <Stack.Screen
         name="ChoosePage"
         component={ChoosePage}
@@ -145,7 +147,23 @@ export default function Router() {
         }}
       />
 
-       <Stack.Screen
+      <Stack.Screen
+        name="DetailTransaksi"
+        component={DetailTransaksi}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="DetailTransaksiPetugas"
+        component={DetailTransaksiPetugas}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
         name="HomePetugas"
         component={HomePetugas}
         options={{
@@ -162,15 +180,6 @@ export default function Router() {
       />
 
       <Stack.Screen
-        name="DetailTransaksi"
-        component={DetailTransaksi}
-        options={{
-          headerShown: false,
-        }}
-      />
-
-
-      <Stack.Screen
         name="CheckOut"
         component={Checkout}
         options={{
@@ -178,7 +187,6 @@ export default function Router() {
         }}
       />
 
-      
       <Stack.Screen
         name="ProdukDetail"
         component={ProdukDetail}
@@ -186,8 +194,6 @@ export default function Router() {
           headerShown: false,
         }}
       />
-
-
 
       <Stack.Screen
         name="PelangganAdd"

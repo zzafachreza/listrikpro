@@ -42,7 +42,11 @@ export default function Splash({navigation}) {
         if (!res) {
           navigation.replace('ChoosePage');
         } else {
-          navigation.replace('MainApp');
+          if (res.userType == 'petugas') {
+            navigation.replace('HomePetugas');
+          } else {
+            navigation.replace('MainApp');
+          }
         }
       });
     }, 1200);

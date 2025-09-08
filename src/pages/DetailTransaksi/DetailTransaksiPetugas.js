@@ -9,19 +9,96 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {colors, fonts, windowWidth} from '../../utils';
-import {MyGap, MyHeader} from '../../components';
+import {MyButton, MyGap, MyHeader, MyInput} from '../../components';
 import {ScrollView} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {apiURL, webURL} from '../../utils/localStorage';
 import axios from 'axios';
 import RenderHtml from 'react-native-render-html';
+import {useToast} from 'react-native-toast-notifications';
 import moment from 'moment';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {PermissionsAndroid} from 'react-native';
 
-export default function DetailTransaksi({route, navigation}) {
+export default function DetailTransaksiPetugas({route, navigation}) {
   // Get transaction data from route params
   const transaksi = route.params?.transaction || route.params;
   console.log(transaksi);
+
+  const [kirim, setKirim] = useState({
+    id_transaksi: transaksi.id_transaksi,
+    newbukti_petugas: null,
+    catatan: '',
+  });
+
+  const toast = useToast();
+  const simpanGambar = () => {
+    try {
+      axios.post(apiURL + 'update_transaksi', kirim).then(res => {
+        console.log(res.data);
+        if (res.data.status == 200) {
+          toast.show(res.data.message, {
+            type: 'success',
+          });
+
+          navigation.replace('HomePetugas');
+        }
+      });
+      console.log('Berhasil menyimpan transaksi', kirim); // <-- Tambahkan ini
+    } catch (error) {
+      console.error('Error saving transaction:', error);
+    }
+  };
+
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'Cool Photo App Camera Permission',
+          message:
+            'Cool Photo App needs access to your camera ' +
+            'so you can take awesome pictures.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can use the camera');
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const selectImageSource = () => {
+    launchCamera(
+      {
+        includeBase64: true,
+        mediaType: 'photo',
+        maxWidth: 800,
+        maxHeight: 800,
+        quality: 0.8,
+      },
+      response => {
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.errorMessage) {
+          console.log('ImagePicker Error: ', response.errorMessage);
+        } else if (response.assets) {
+          console.log(response.assets[0]);
+          setKirim({
+            ...kirim,
+            newbukti_petugas: `data:${response.assets[0].type};base64, ${response.assets[0].base64}`,
+          });
+        }
+      },
+    );
+  };
 
   const getStatusColor = status => {
     switch (status) {
@@ -37,36 +114,6 @@ export default function DetailTransaksi({route, navigation}) {
         return colors.danger || '#F44336';
       default:
         return colors.secondary || '#757575';
-    }
-  };
-
-  const getTypeColor = type => {
-    switch (type) {
-      case 'buku':
-        return colors.primary;
-      case 'bundling':
-        return colors.success;
-      case 'mandiri':
-        return colors.warning;
-      case 'kolaborasi':
-        return colors.info;
-      default:
-        return colors.gray;
-    }
-  };
-
-  const getTypeLabel = type => {
-    switch (type) {
-      case 'buku':
-        return 'Pesanan Buku';
-      case 'bundling':
-        return 'Publikasi Paket Bundling';
-      case 'mandiri':
-        return 'Publikasi Paket Mandiri';
-      case 'kolaborasi':
-        return 'Publikasi Paket Kolaborasi';
-      default:
-        return type;
     }
   };
 
@@ -88,6 +135,10 @@ export default function DetailTransaksi({route, navigation}) {
       });
     }
   };
+
+  useEffect(() => {
+    requestCameraPermission();
+  }, []);
 
   const renderPurchaseDetails = () => (
     <View style={styles.card}>
@@ -183,8 +234,25 @@ export default function DetailTransaksi({route, navigation}) {
 
           <View style={styles.row}>
             <Text style={styles.label}>Alamat</Text>
-            <Text style={styles.value}>{transaksi.alamat_customer}</Text>
           </View>
+          <Text
+            style={{
+              fontFamily: fonts.primary[600],
+              fontSize: 14,
+            }}>
+            {transaksi.alamat_customer}
+          </Text>
+          <MyButton
+            onPress={() =>
+              Linking.openURL(
+                'https://www.google.com/maps/search/' +
+                  transaksi.alamat_customer,
+              )
+            }
+            title="Lihat Google Maps"
+            Icons="location-outline"
+            iconColor="white"
+          />
         </View>
 
         {/* Payment Information */}
@@ -218,45 +286,80 @@ export default function DetailTransaksi({route, navigation}) {
               </TouchableOpacity>
             </View>
           )}
-          {/* Petugas Information */}
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Informasi Petugas</Text>
+        </View>
 
-            {transaksi.pembayaran && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Nama Petugas</Text>
-                <Text style={styles.value}>{transaksi.nama_petugas}</Text>
-              </View>
-            )}
+        {/* Petugas Information */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Informasi Petugas</Text>
 
-            <View style={styles.proofContainer}>
-              <Text style={styles.label}>Bukti Pengerjaan Petugas</Text>
-
-              <FastImage
-                resizeMode={FastImage.resizeMode.contain}
-                source={{
-                  uri:
-                    transaksi.bukti_petugas == ''
-                      ? 'https://zavalabs.com/noimage.png'
-                      : webURL + transaksi.bukti_petugas,
-                }}
-                style={{
-                  alignSelf: 'center',
-                  width: windowWidth / 1.5,
-                  height: windowWidth / 1.5,
-                  marginBottom: 10,
-                }}
-              />
-            </View>
-          </View>
-          <MyGap jarak={20} />
-          {transaksi.catatan && (
-            <View style={styles.noteContainer}>
-              <Text style={styles.label}>Catatan</Text>
-              <Text style={styles.noteText}>{transaksi.catatan}</Text>
+          {transaksi.pembayaran && (
+            <View style={styles.row}>
+              <Text style={styles.label}>Nama Petugas</Text>
+              <Text style={styles.value}>{transaksi.nama_petugas}</Text>
             </View>
           )}
+
+          <View style={styles.proofContainer}>
+            <Text style={styles.label}>Bukti Pengerjaan Petugas</Text>
+
+            <FastImage
+              resizeMode={FastImage.resizeMode.contain}
+              source={{
+                uri:
+                  kirim.newbukti_petugas !== null
+                    ? kirim.newbukti_petugas
+                    : transaksi.bukti_petugas == ''
+                    ? 'https://zavalabs.com/noimage.png'
+                    : webURL + transaksi.bukti_petugas,
+              }}
+              style={{
+                alignSelf: 'center',
+                width: windowWidth / 1.5,
+                height: windowWidth / 1.5,
+                marginBottom: 10,
+              }}
+            />
+
+            {kirim.newbukti_petugas == null && (
+              <View style={styles.noteContainer}>
+                <Text style={styles.label}>Catatan</Text>
+                <Text style={styles.noteText}>{transaksi.catatan}</Text>
+              </View>
+            )}
+            <MyGap jarak={10} />
+            {kirim.newbukti_petugas == null &&
+              transaksi.status !== 'Selesai' && (
+                <MyButton
+                  title="Upload Bukti Petugas"
+                  type="outline"
+                  iconColor="white"
+                  Icons="camera"
+                  onPress={selectImageSource}
+                  style={styles.uploadButton}
+                />
+              )}
+
+            {kirim.newbukti_petugas !== null && (
+              <>
+                <MyInput
+                  label="Catatan"
+                  placeholder="Masukan catatan bila perlu"
+                  value={kirim.catatan}
+                  onChangeText={x => setKirim({...kirim, catatan: x})}
+                />
+                <MyButton
+                  warna={colors.secondary}
+                  title="Simpan Gambar"
+                  type="outline"
+                  iconColor="white"
+                  Icons="save"
+                  onPress={simpanGambar}
+                />
+              </>
+            )}
+          </View>
         </View>
+        <MyGap jarak={20} />
       </ScrollView>
     </View>
   );

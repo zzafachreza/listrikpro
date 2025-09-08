@@ -131,8 +131,10 @@ export default function ({navigation, route}) {
                 alignItems: 'center',
               }}></View>
             <View style={{padding: 10}}>
-              <MyList label="Nama Lengkap" value={user.nama_lengkap} />
+              <MyList label="Nama Lengkap" value={user.nama_customer} />
               <MyList label="Username" value={user.username} />
+              <MyList label="Telepon" value={user.telepon_customer} />
+              <MyList label="Alamat" value={user.alamat_customer} />
             </View>
             {/* data detail */}
           </View>

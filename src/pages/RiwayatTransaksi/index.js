@@ -10,24 +10,19 @@ import {colors, fonts} from '../../utils';
 import {MyHeader} from '../../components';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {apiURL, getData, MYAPP, storeData} from '../../utils/localStorage';
+import {apiURL, getData} from '../../utils/localStorage';
 import axios from 'axios';
-import LinearGradient from 'react-native-linear-gradient';
-import {Image} from 'react-native';
-import {Alert} from 'react-native';
 
 export default function RiwayatTransaksi({navigation}) {
   const [transactions, setTransactions] = useState([]);
-  const [user, setUser] = useState({});
 
   // Load transactions from local storage
   useEffect(() => {
     const loadTransactions = async () => {
       getData('user').then(u => {
-        setUser(u);
         axios
-          .post(apiURL + 'transaksi_petugas', {
-            fid_petugas: u.id_petugas,
+          .post(apiURL + 'transaksi', {
+            fid_customer: u.id_customer,
           })
           .then(res => {
             console.log(res.data);
@@ -98,39 +93,8 @@ export default function RiwayatTransaksi({navigation}) {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={[colors.primary, '#FEFAE0']}
-        style={styles.headerGradient}
-        start={{x: 0, y: 0}}
-        end={{x: 0.9, y: 1}}>
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.greetingText}>PETUGAS</Text>
-            <Text style={styles.greetingText}>{user.nama_petugas}</Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => {
-              Alert.alert(MYAPP, 'Apakah kamu yakin akan keluar ?', [
-                {
-                  text: 'tidak',
-                },
-                {
-                  text: 'Keluar',
-                  onPress: () => {
-                    storeData('user', null);
+      <MyHeader title="Riwayat Transaksi" onPress={() => navigation.goBack()} />
 
-                    navigation.reset({
-                      index: 0,
-                      routes: [{name: 'Splash'}],
-                    });
-                  },
-                },
-              ]);
-            }}>
-            <Icon type="ionicon" name="log-out-outline" size={30} />
-          </TouchableOpacity>
-        </View>
-      </LinearGradient>
       {transactions.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Icon name="receipt-outline" size={60} color={colors.gray} />
@@ -169,7 +133,7 @@ export default function RiwayatTransaksi({navigation}) {
               <TouchableOpacity
                 style={styles.detailButton}
                 onPress={() =>
-                  navigation.navigate('DetailTransaksiPetugas', {transaction})
+                  navigation.navigate('DetailTransaksi', {transaction})
                 }>
                 <Text style={styles.detailButtonText}>
                   Lihat Detail Transaksi
@@ -188,30 +152,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,
-  },
-  headerGradient: {
-    paddingBottom: 10,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 20,
-    top: 10,
-  },
-  logo: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-  },
-  greetingText: {
-    fontFamily: fonts.secondary[600],
-    fontSize: 15,
-    color: 'white',
   },
   scrollContainer: {
     padding: 15,

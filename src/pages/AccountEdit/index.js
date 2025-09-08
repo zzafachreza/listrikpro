@@ -44,7 +44,7 @@ export default function AccountEdit({navigation, route}) {
   const [loading, setLoading] = useState(false);
   const toast = useToast();
   const sendServer = () => {
-    setLoading(true);
+    // setLoading(true);
     console.log(kirim);
     axios.post(apiURL + 'update_profile', kirim).then(res => {
       console.log(res.data);
@@ -134,8 +134,23 @@ export default function AccountEdit({navigation, route}) {
         <MyInput
           label="Nama Lengkap"
           iconname="person-outline"
-          value={kirim.nama_lengkap}
-          onChangeText={x => setKirim({...kirim, nama_lengkap: x})}
+          value={kirim.nama_customer}
+          onChangeText={x => setKirim({...kirim, nama_customer: x})}
+        />
+
+        <MyInput
+          label="Telepon"
+          iconname="call-outline"
+          keyboardType="phone-pad"
+          value={kirim.telepon_customer}
+          onChangeText={x => setKirim({...kirim, telepon_customer: x})}
+        />
+
+        <MyInput
+          label="Alamat"
+          iconname="location-outline"
+          value={kirim.alamat_customer}
+          onChangeText={x => setKirim({...kirim, alamat_customer: x})}
         />
 
         <MyInput

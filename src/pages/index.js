@@ -48,12 +48,18 @@ import Checkout from './Checkout';
 import ProdukDetail from './ProdukDetail';
 import ChoosePage from './ChoosePage';
 import HomePetugas from './HomePetugas';
+import RiwayatTransaksi from './RiwayatTransaksi';
+import DetailTransaksi from './DetailTransaksi';
+import DetailTransaksiPetugas from './DetailTransaksi/DetailTransaksiPetugas';
 
 // NEW
 
 export {
   Splash,
   Profit,
+  DetailTransaksiPetugas,
+  RiwayatTransaksi,
+  DetailTransaksi,
   Pelanggan,
   PelangganEdit,
   PelangganAdd,
@@ -98,13 +104,8 @@ export {
   DataLaporan,
   BackupRestore,
   Royalti,
-Checkout,
-ProdukDetail,
-ChoosePage,
-HomePetugas,
-
-
-
-
-
+  Checkout,
+  ProdukDetail,
+  ChoosePage,
+  HomePetugas,
 };

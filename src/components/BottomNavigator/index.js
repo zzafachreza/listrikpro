@@ -75,15 +75,19 @@ export default function BottomNavigator({state, descriptors, navigation}) {
         };
 
         let iconName;
+        let iconText;
         switch (label) {
           case 'Home':
             iconName = isFocused ? 'home' : 'home-outline';
+            iconText = 'Home';
             break;
           case 'Profile':
             iconName = isFocused ? 'person' : 'person-outline';
+            iconText = 'Profil';
             break;
           default:
-            iconName = 'help-circle-outline';
+            iconName = 'list-outline';
+            iconText = 'Transaksi';
             break;
         }
 
@@ -102,8 +106,8 @@ export default function BottomNavigator({state, descriptors, navigation}) {
                 justifyContent: 'center',
                 alignItems: 'center',
                 height: 50,
-                borderTopWidth:1,
-                borderTopColor:'white'
+                borderTopWidth: 1,
+                borderTopColor: 'white',
               }}>
               <Icon
                 type="ionicon"
@@ -111,6 +115,14 @@ export default function BottomNavigator({state, descriptors, navigation}) {
                 size={24}
                 color={isFocused ? colors.white : colors.white}
               />
+              <Text
+                style={{
+                  fontFamily: fonts.secondary[600],
+                  fontSize: 10,
+                  color: colors.white,
+                }}>
+                {iconText}
+              </Text>
             </View>
           </TouchableOpacity>
         );
