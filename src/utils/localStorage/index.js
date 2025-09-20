@@ -19,8 +19,8 @@ export const getData = async key => {
   }
 };
 
-// export const apiURL = 'https://listrikpro.azeraf.id/api/';
-export const apiURL = 'http://192.168.1.24/listrikpro/api/';
+export const apiURL = 'https://listrikpro.azeraf.id/api/';
+// export const apiURL = 'http://192.168.1.24/listrikpro/api/';
 
 export const MYAPP = 'ListrikPro.id';
 export const api_token =

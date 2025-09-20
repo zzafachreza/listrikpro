@@ -250,12 +250,11 @@ export default function DetailTransaksi({route, navigation}) {
             </View>
           </View>
           <MyGap jarak={20} />
-          {transaksi.catatan && (
-            <View style={styles.noteContainer}>
-              <Text style={styles.label}>Catatan</Text>
-              <Text style={styles.noteText}>{transaksi.catatan}</Text>
-            </View>
-          )}
+
+          <View style={styles.noteContainer}>
+            <Text style={styles.label}>Catatan</Text>
+            <Text style={styles.noteText}>{transaksi.catatan}</Text>
+          </View>
         </View>
       </ScrollView>
     </View>
